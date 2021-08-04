@@ -1,5 +1,18 @@
-from datetime import date, time
 import xlsxwriter
+from xlsxwriter.utility import xl_rowcol_to_cell
+
+from src import utils
+
+from src.data import datasets
+
+contract_types = utils.process_employment_contract()
+with open('data/ethnics.csv', 'r') as f:
+    ethnics = utils.process_ethnics(f)
+religions = utils.process_religions()
+teaching_titles = utils.process_level_settings(datasets.TEACHING_TITLE)
+academic_titles = utils.process_level_settings(datasets.ACADEMIC_TITLE)
+degrees = utils.process_level_settings(datasets.DEGREE)
+working_status = utils.process_working_status()
 
 workbook = xlsxwriter.Workbook('output/data.xlsx')
 worksheet = workbook.add_worksheet()
@@ -13,57 +26,60 @@ header_format = workbook.add_format({
     'valign': 'vcenter',
     'indent': 1,
 })
+cell_format = workbook.add_format({
+    'border': 1,
+    'text_wrap': True,
+    'valign': 'vcenter',
+    'halign': 'hcenter',
+    'indent': 1,
+})
 
-# Set up layout of the worksheet.
-worksheet.set_column('A:A', 68)
-worksheet.set_column('B:B', 15)
-worksheet.set_column('D:D', 15)
-worksheet.set_row(0, 36)
+worksheet.set_column(0, 40, 20)
+worksheet.set_row(0, 40)
 
-# Write the header cells and some data that will be used in the examples.
-heading1 = 'Some examples of data validation in XlsxWriter'
-heading2 = 'Enter values in this column'
-heading3 = 'Sample Data'
+headers = {
+    'Last name': None,
+    'Middle name': None,
+    'First name': None,
+    'Staff ID': None,
+    'Date of Birth': None,
+    'Work email': None,
+    'Phone number': None,
+    'Tax code': None,
+    'Social code': None,
+    'Government ID': None,
+    'Government issued date': None,
+    'Government issued place': None,
+    'Passport ID': None,
+    'Passport issued date': None,
+    'Passport issued place': None,
+    'Working status': working_status,
+    'Start working date': None,
+    'End working date': None,
+    'User type': ['Staff', 'Teacher'],
+    'Gender': ['Male', 'Female', 'Others'],
+    'Permission profile': ['Default profile', 'Admin profile'],
+    'Employment contract': contract_types,
+    'Birthplace': None,
+    'Hometown': None,
+    'Ethnics': None,
+    'Religion': religions,
+    'Communist party status': ['True', 'False'],
+    'Communist party entry date': None,
+    'Trade union status': ['True', 'False'],
+    'Trade union entry date': None,
+    'Teaching title': teaching_titles,
+    'Academic title': academic_titles,
+    'Degree': degrees,
+}
 
-worksheet.write('A1', heading1, header_format)
-worksheet.write('B1', heading2, header_format)
-worksheet.write('D1', heading3, header_format)
-
-worksheet.write_row('D3', ['Integers', 1, 10])
-worksheet.write_row('D4', ['List data', 'open', 'high', 'close'])
-worksheet.write_row('D5', ['Formula', '=AND(F5=50,G5=60)', 50, 60])
-
-# Example 6. Limiting input to a value in a dropdown list.
-#
-txt = 'Select a value from a drop down list'
-
-worksheet.write('A13', txt)
-worksheet.data_validation('B13', {'validate': 'list',
-                                  'source': ['Nam', 'Nu', 'Khac']*4})
-
-# Example 10. Limiting input to a string greater than a fixed length.
-#
-txt = 'Enter a string longer than 3 characters'
-
-worksheet.write('A21', txt)
-worksheet.data_validation('B21', {'validate': 'length',
-                                  'criteria': '>',
-                                  'value': 3})
-
-# Example 14. Displaying and modifying data validation messages.
-#
-txt = "Display a custom info message when integer isn't between 1 and 100"
-
-worksheet.write('A29', txt)
-worksheet.data_validation('B29', {'validate': 'integer',
-                                  'criteria': 'between',
-                                  'minimum': 1,
-                                  'maximum': 100,
-                                  'input_title': 'Enter an integer:',
-                                  'input_message': 'between 1 and 100',
-                                  'error_title': 'Input value is not valid!',
-                                  'error_message':
-                                  'It should be an integer between 1 and 100',
-                                  'error_type': 'information'})
+count = 0
+for k, v in headers.items():
+    worksheet.write(xl_rowcol_to_cell(0, count), k, header_format)
+    if isinstance(v, list):
+        worksheet.data_validation(xl_rowcol_to_cell(1, count),
+                                  {'validate': 'list',
+                                   'source': v})
+    count += 1
 
 workbook.close()

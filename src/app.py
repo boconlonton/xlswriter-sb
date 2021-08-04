@@ -39,7 +39,7 @@ txt = 'Select a value from a drop down list'
 
 worksheet.write('A13', txt)
 worksheet.data_validation('B13', {'validate': 'list',
-                                  'source': ['open', 'high', 'close']})
+                                  'source': ['Nam', 'Nu', 'Khac']*4})
 
 # Example 10. Limiting input to a string greater than a fixed length.
 #

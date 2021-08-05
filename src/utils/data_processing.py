@@ -4,12 +4,54 @@ from typing import List
 from typing import Mapping
 from typing import Union
 from typing import Tuple
-
+from typing import Any
+from typing import Generator
 
 from src.data import datasets
 
 
-def process_ethnics(data: TextIO) -> List:
+def process_provinces(data: Mapping[str, Union[str, int]]) -> List:
+    """Returns list of all provinces from data file
+    Args:
+        data (Mapping): A dictionary of province data
+    """
+    for province in data:
+        yield [province.get('code'), province.get('name')]
+
+
+def process_districts(data: Mapping[str, Any]) -> Generator:
+    """Yields list districts of a province
+    Args:
+        data (Mapping): A dictionary of province data
+    """
+    for province in data:
+        for district in province.get('districts'):
+            yield [
+                district.get('code'),
+                province.get('code'),
+                district.get('name'),
+                province.get('name')
+            ]
+
+
+def process_wards(data: Mapping[str, Union[str, int]]) -> Generator:
+    """Returns a generator of dictionaries that contains ward information
+    Args:
+        data (Mapping): A dictionary of wards data
+    """
+    for ward in data:
+        if ward.get('ward_name'):
+            yield [
+                ward.get('ward_code'),
+                ward.get('district_code'),
+                ward.get('province_code'),
+                ward.get('ward_name'),
+                ward.get('district_name'),
+                ward.get('province_name')
+            ]
+
+
+def process_ethnics(data: TextIO):
     """Returns a generator of ethnics dictionary
 
     Args:
@@ -17,7 +59,7 @@ def process_ethnics(data: TextIO) -> List:
     """
     next(data)
     datas = csv.reader(data)
-    return [item[1] for item in datas]
+    return [item for item in datas]
 
 
 def process_religions() -> List[str]:

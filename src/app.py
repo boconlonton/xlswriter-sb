@@ -1,4 +1,5 @@
 import json
+from datetime import date
 import xlsxwriter
 from xlsxwriter.utility import xl_rowcol_to_cell
 
@@ -15,7 +16,12 @@ academic_titles = utils.process_level_settings(datasets.ACADEMIC_TITLE)
 degrees = utils.process_level_settings(datasets.DEGREE)
 working_status = utils.process_working_status()
 
-workbook = xlsxwriter.Workbook('output/data.xlsx')
+workbook = xlsxwriter.Workbook(
+    'output/data.xlsx',
+    # {
+    #     'default_date_format': 'dd/mm/yyyy'
+    # }
+)
 ws1 = workbook.add_worksheet('Data')
 ws2 = workbook.add_worksheet('MA_TINH')
 ws3 = workbook.add_worksheet('MA_HUYEN')
@@ -46,20 +52,20 @@ headers = {
     'Middle name': None,
     'First name': None,
     'Staff ID': None,
-    'Date of Birth': None,
+    'Date of Birth': 'is_date',
     'Work email': None,
     'Phone number': None,
     'Tax code': None,
     'Social code': None,
     'Government ID': None,
-    'Government issued date': None,
+    'Government issued date': 'is_date',
     'Government issued place': None,
     'Passport ID': None,
-    'Passport issued date': None,
+    'Passport issued date': 'is_date',
     'Passport issued place': None,
     'Working status': working_status,
-    'Start working date': None,
-    'End working date': None,
+    'Start working date': 'is_date',
+    'End working date': 'is_date',
     'User type': ['Staff', 'Teacher'],
     'Gender': ['Male', 'Female', 'Others'],
     'Permission profile': ['Default profile', 'Admin profile'],
@@ -69,9 +75,9 @@ headers = {
     'Ethnics': None,
     'Religion': religions,
     'Communist party status': ['True', 'False'],
-    'Communist party entry date': None,
+    'Communist party entry date': 'is_date',
     'Trade union status': ['True', 'False'],
-    'Trade union entry date': None,
+    'Trade union entry date': 'is_date',
     'Teaching title': teaching_titles,
     'Academic title': academic_titles,
     'Degree': degrees,
@@ -92,8 +98,15 @@ for k, v in headers.items():
                                 'validate': 'list',
                                 'source': f'=DAN_TOC!$B$1:$B$56'
                             })
+    if v == 'is_date':
+        ws1.data_validation(xl_rowcol_to_cell(1, count),
+                            {
+                                'validate': 'date',
+                                'criteria': 'between',
+                                'minimum': date(1910, 1, 1),
+                                'maximum': date(2021, 12, 12)
+                            })
     count += 1
-
 
 with open('data/vietnam_nested.json', 'r') as f:
     raw_data = json.load(f)

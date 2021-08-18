@@ -81,6 +81,14 @@ headers = {
     'Teaching title': teaching_titles,
     'Academic title': academic_titles,
     'Degree': degrees,
+    'Permanent Address': None,
+    'Permanent Address Province': None,
+    'Permanent Address District': None,
+    'Permanent Address Ward': None,
+    'Mailing Address': None,
+    'Mailing Address Province': None,
+    'Mailing Address District': None,
+    'Mailing Address Ward': None
 }
 
 count = 0
